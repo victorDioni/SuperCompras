@@ -19,7 +19,10 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -38,21 +41,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             SuperComprasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(verticalArrangement = Arrangement.Top) {
-                        ImagemTopo(
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                        Titulo(
-                            texto = "Lista de Compras",
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                        ItemDaLista(
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                        Titulo(
-                            texto = "Comprados",
-                            modifier = Modifier.padding(innerPadding)
-                        )
+                    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.padding(innerPadding)) {
+                        ImagemTopo()
+                        AdicionarItem()
+                        Titulo(texto = "Lista de Compras")
+                        ItemDaLista()
+                        Titulo( texto = "Comprados",)
 
                     }
                 }
@@ -111,8 +105,24 @@ fun ItemDaLista(modifier: Modifier = Modifier) {
 
         )
     }
+}
 
+@Composable
+fun AdicionarItem(modifier: Modifier = Modifier) {
+    //mutableStateOf é uma função que cria um estado mutável, ou seja, um estado que pode ser alterado.
+    // O valor inicial do estado é uma string vazia ("").
+    // O texto digitado pelo usuário será armazenado nessa variável de estado,
+    // permitindo que o valor seja atualizado conforme o usuário digita no TextField.
 
+    //remember é uma função que permite que o estado seja lembrado durante recomposições.
+
+    var texto = remember { mutableStateOf("") }
+    TextField(
+        value = "",
+        onValueChange = { texto.value = it },
+        label = { Text("Adicionar item") },
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -140,6 +150,14 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
+}
+
+@Preview
+@Composable
+private fun AdicionarItemPreview() {
+    SuperComprasTheme() {
+        AdicionarItem()
+    }
 }
 
 @Preview
