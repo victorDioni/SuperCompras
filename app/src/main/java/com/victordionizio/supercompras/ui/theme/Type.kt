@@ -2,33 +2,48 @@ package com.victordionizio.supercompras.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.unit.sp
+import com.victordionizio.supercompras.R
 
 // Set of Material typography styles to start with
+val kronaFontFamily = Font(R.font.krona).toFontFamily()
+val numasFontFamily = Font(R.font.numas).toFontFamily()
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+    headlineLarge = TextStyle(
+        fontFamily = kronaFontFamily,
         fontWeight = FontWeight.Normal,
+        color = Coral,
+        fontSize = 20.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = numasFontFamily,
+        fontWeight = FontWeight.Normal,
+        color = Marinho,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = kronaFontFamily,
+        fontWeight = FontWeight.Normal,
+        color = Marinho,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
+        fontFamily = kronaFontFamily,
+        fontWeight = FontWeight.Normal,
+        color = Marinho,
+        fontSize = 12.sp,
+        lineHeight = 20.sp,
         letterSpacing = 0.5.sp
-    )
-    */
+        ),
+
 )

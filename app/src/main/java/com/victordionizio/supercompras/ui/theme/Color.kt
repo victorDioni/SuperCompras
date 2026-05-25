@@ -10,8 +10,10 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val Marinho = Color(0x131730)
+// Para aparecer a preview do lado esquerdo das cores é necessario colocar FF
+// antes do codigo hexadecimal da cor, para indicar que a opacidade é 100% (FF em hexadecimal é igual a 255 em decimal, que é o valor máximo de opacidade).
+val Marinho = Color(0xFF131730)
 
-val Coral = Color(0xF55B64)
+val Coral = Color(0xFFF55B64)
 
-val CinzaClaro = Color(0xF9F9F9)
+val CinzaClaro = Color(0xFFF9F9F9)
