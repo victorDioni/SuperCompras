@@ -88,6 +88,7 @@ fun ItemDaLista(modifier: Modifier = Modifier) {
                 style = Typography.bodyMedium,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
+                    .weight(1f) // Faz com que o texto ocupe o máximo de espaço disponível
             )
             Icone(
                 icone = Icons.Default.Delete,
@@ -104,6 +105,10 @@ fun ItemDaLista(modifier: Modifier = Modifier) {
 
         Text(
             text = "Segunda-geira, (25/05/2026) as 11:40",
+            style = Typography.labelSmall,
+            modifier = Modifier
+                .padding(top = 8.dp) // Adiciona um espaçamento entre o texto e o item da lista
+
         )
     }
 
