@@ -5,10 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -18,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -35,7 +38,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SuperComprasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column() {
+                    Column(verticalArrangement = Arrangement.Top) {
                         ImagemTopo(
                             modifier = Modifier.padding(innerPadding)
                         )
@@ -59,7 +62,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Titulo(texto : String, modifier: Modifier = Modifier) {
+fun Titulo(texto: String, modifier: Modifier = Modifier) {
     Text(
         text = texto,
         style = Typography.headlineLarge,
@@ -69,27 +72,41 @@ fun Titulo(texto : String, modifier: Modifier = Modifier) {
 
 @Composable
 fun ItemDaLista(modifier: Modifier = Modifier) {
-    Row() {
-        Checkbox(
-            checked = false,
-            onCheckedChange = { /*TODO*/ }, // Ação a ser executada quando o estado do checkbox for alterado
-            modifier = modifier.padding(end = 8.dp) // Adiciona um espaçamento entre o checkbox e o texto
-        )
+    Column(verticalArrangement = Arrangement.Top, modifier = modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+            Checkbox(
+                checked = false,
+                onCheckedChange = { /*TODO*/ }, // Ação a ser executada quando o estado do checkbox for alterado
+                modifier = Modifier
+                    .padding(end = 8.dp) // Adiciona um espaçamento entre o checkbox e o texto
+                    .requiredSize(24.dp) // Define o tamanho do checkbox
+
+
+            )
+            Text(
+                text = "Suco",
+                style = Typography.bodyMedium,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+            )
+            Icone(
+                icone = Icons.Default.Delete,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp) // Adiciona um espaçamento entre o texto e o ícone
+                    .size(16.dp) // Define o tamanho do ícone
+            )
+            Icone(
+                icone = Icons.Default.Edit,
+                modifier = Modifier
+                    .size(16.dp)
+            )
+        }
+
         Text(
-            text = "Suco",
-            style = Typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            modifier = modifier
+            text = "Segunda-geira, (25/05/2026) as 11:40",
         )
-         Icone(
-             icone = Icons.Default.Delete,
-             modifier = modifier.size(16.dp)
-         )
-        Icone(
-             icone = Icons.Default.Edit,
-             modifier = modifier.size(16.dp)
-         )
     }
+
 
 }
 
@@ -103,7 +120,7 @@ fun ImagemTopo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Icone(icone : ImageVector, modifier: Modifier = Modifier) {
+fun Icone(icone: ImageVector, modifier: Modifier = Modifier) {
     Icon(
         imageVector = icone,
         contentDescription = "Ícone editar",
@@ -111,6 +128,7 @@ fun Icone(icone : ImageVector, modifier: Modifier = Modifier) {
         modifier = modifier
     )
 }
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
