@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,7 +56,7 @@ fun Titulo(modifier: Modifier = Modifier) {
 @Composable
 fun ImagemTopo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.image_topo),
+        painter = painterResource(id = R.drawable.topo),
         contentDescription = "Imagem Top",
         modifier = modifier.size(160.dp)
     )
