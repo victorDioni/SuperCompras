@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -115,10 +116,16 @@ fun AdicionarItem(modifier: Modifier = Modifier) {
     // permitindo que o valor seja atualizado conforme o usuário digita no TextField.
 
     //remember é uma função que permite que o estado seja lembrado durante recomposições.
+    // Isso significa que, mesmo que a função composable seja chamada novamente
+    // (por exemplo, devido a uma mudança de estado), o valor do estado será mantido e não será redefinido para o valor inicial.
+    // Dessa forma, o texto digitado pelo usuário permanecerá mesmo que a função composable seja recomposicionada.
 
-    var texto = remember { mutableStateOf("") }
+    //rememberSaveable é uma função que combina a funcionalidade de remember com a capacidade de
+    // salvar o estado em caso de mudanças de configuração, como rotações de tela.
+
+    var texto = rememberSaveable() { mutableStateOf("") }
     TextField(
-        value = "",
+        value = texto.value,
         onValueChange = { texto.value = it },
         label = { Text("Adicionar item") },
         modifier = modifier
