@@ -9,14 +9,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -26,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -42,12 +46,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             SuperComprasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.padding(innerPadding)) {
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
                         ImagemTopo()
                         AdicionarItem()
                         Titulo(texto = "Lista de Compras")
                         ItemDaLista()
-                        Titulo( texto = "Comprados",)
+                        Titulo(texto = "Comprados")
 
                     }
                 }
@@ -68,7 +75,10 @@ fun Titulo(texto: String, modifier: Modifier = Modifier) {
 @Composable
 fun ItemDaLista(modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.Top, modifier = modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
             Checkbox(
                 checked = false,
                 onCheckedChange = { /*TODO*/ }, // Ação a ser executada quando o estado do checkbox for alterado
@@ -124,11 +134,22 @@ fun AdicionarItem(modifier: Modifier = Modifier) {
     // salvar o estado em caso de mudanças de configuração, como rotações de tela.
 
     var texto = rememberSaveable() { mutableStateOf("") }
-    TextField(
+    OutlinedTextField(
         value = texto.value,
         onValueChange = { texto.value = it },
-        label = { Text("Adicionar item") },
+        placeholder = {
+            Text(
+                text = "Digite o item que deseja adicionar",
+                color = Color.Gray,
+                style = Typography.bodyMedium
+            )
+        },
+
+        singleLine = true, // Isso garante que o usuario digite apenas uma linha de texto, evitando que o campo de texto se expanda verticalmente.
+        shape = RoundedCornerShape(24.dp),
         modifier = modifier
+            .fillMaxWidth() // Faz com que o componente ocupe todoo o espaço horizontal disponível que tem disponivel para ele
+            .padding(8.dp),
     )
 }
 
