@@ -8,8 +8,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -17,16 +19,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,21 +52,49 @@ class MainActivity : ComponentActivity() {
         setContent {
             SuperComprasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
-                        verticalArrangement = Arrangement.Top,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        ImagemTopo()
-                        AdicionarItem()
-                        Titulo(texto = "Lista de Compras")
-                        ItemDaLista()
-                        Titulo(texto = "Comprados")
-
-                    }
-                }
+                    ListaDeCompras(Modifier.padding(innerPadding))
             }
         }
     }
+}
+
+
+@Composable
+fun ListaDeCompras(modifier: Modifier = Modifier) {
+    var listaDeItens by rememberSaveable { mutableStateOf(listOf<ItemCompra>()) }
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally, // Alinha os itens horizontalmente ao centro
+        modifier = modifier
+    ) {
+        ImagemTopo()
+        AdicionarItem(aoSalvarItem = { textoNovo ->
+            listaDeItens = listaDeItens + ItemCompra(textoNovo)
+        })
+        Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
+        Titulo(texto = "Lista de Compras")
+        Column {
+            listaDeItens.forEach { item ->
+                ItemDaLista(
+                    item = item,
+                    aoMudarStatus = {
+                        listaDeItens = listaDeItens.map { itemDaLista ->
+                            if (itemDaLista == item) {
+                                itemDaLista.copy(foiComprado = !itemDaLista.foiComprado)
+                            } else {
+                                itemDaLista
+                            }
+                        }
+                    },
+                    aoRemoverItem = {},
+                    aoEditarItem = {}
+                )
+            }
+        }
+        Titulo(texto = "Comprados")
+
+    }
+}
 }
 
 @Composable
@@ -73,7 +107,13 @@ fun Titulo(texto: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ItemDaLista(modifier: Modifier = Modifier) {
+fun ItemDaLista(
+    item: ItemCompra,
+    aoMudarStatus : (item : ItemCompra) -> Unit = {},
+    aoRemoverItem : (item : ItemCompra) -> Unit = {},
+    aoEditarItem : (item : ItemCompra) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Column(verticalArrangement = Arrangement.Top, modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -81,7 +121,9 @@ fun ItemDaLista(modifier: Modifier = Modifier) {
         ) {
             Checkbox(
                 checked = false,
-                onCheckedChange = { /*TODO*/ }, // Ação a ser executada quando o estado do checkbox for alterado
+                onCheckedChange = { // Ação a ser executada quando o estado do checkbox for alterado
+                    aoMudarStatus(item)
+                },
                 modifier = Modifier
                     .padding(end = 8.dp) // Adiciona um espaçamento entre o checkbox e o texto
                     .requiredSize(24.dp) // Define o tamanho do checkbox
@@ -89,23 +131,31 @@ fun ItemDaLista(modifier: Modifier = Modifier) {
 
             )
             Text(
-                text = "Suco",
+                text = item.texto,
                 style = Typography.bodyMedium,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .weight(1f) // Faz com que o texto ocupe o máximo de espaço disponível
             )
-            Icone(
-                icone = Icons.Default.Delete,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp) // Adiciona um espaçamento entre o texto e o ícone
-                    .size(16.dp) // Define o tamanho do ícone
-            )
-            Icone(
-                icone = Icons.Default.Edit,
-                modifier = Modifier
-                    .size(16.dp)
-            )
+            IconButton(
+                onClick = { aoRemoverItem(item) },
+                modifier = Modifier.padding(horizontal = 8.dp) // Adiciona um espaçamento entre os ícones
+            ) {
+                Icone(
+                    icone = Icons.Default.Delete,
+                    modifier = Modifier
+                        .size(16.dp) // Define o tamanho do ícone
+                )
+            }
+            IconButton(
+                onClick = { aoEditarItem(item) },
+            ) {
+                Icone(
+                    icone = Icons.Default.Edit,
+                    modifier = Modifier
+                        .size(16.dp)
+                )
+            }
         }
 
         Text(
@@ -119,7 +169,7 @@ fun ItemDaLista(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun AdicionarItem(modifier: Modifier = Modifier) {
+fun AdicionarItem(aoSalvarItem: (texto : String) -> Unit, modifier: Modifier = Modifier) {
     //mutableStateOf é uma função que cria um estado mutável, ou seja, um estado que pode ser alterado.
     // O valor inicial do estado é uma string vazia ("").
     // O texto digitado pelo usuário será armazenado nessa variável de estado,
@@ -151,7 +201,30 @@ fun AdicionarItem(modifier: Modifier = Modifier) {
             .fillMaxWidth() // Faz com que o componente ocupe todoo o espaço horizontal disponível que tem disponivel para ele
             .padding(8.dp),
     )
+
+    Button(
+        shape = RoundedCornerShape(24.dp),
+        onClick = {
+            aoSalvarItem(texto.value)
+            texto.value = "" // Limpa o campo de texto após salvar o item
+        },
+        modifier = modifier
+    ) {
+        Text(
+            text = "Salvar item",
+            color = Color.White,
+            style = Typography.bodyLarge,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
 }
+
+// onClick: () -> Unit é a assinatura de um parâmetro de função em Kotlin.
+// Ele representa uma função que não recebe argumentos e não retorna nenhum valor
+// (Unit é o tipo de retorno para funções que não retornam nada).
+
+// onClick é um parâmetro do tipo função que não recebe argumentos e não retorna nenhum valor.
+// Ele é usado para definir a ação a ser executada quando o botão for clicado.
 
 @Composable
 fun ImagemTopo(modifier: Modifier = Modifier) {
@@ -172,19 +245,14 @@ fun Icone(icone: ImageVector, modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+
+
 
 @Preview
 @Composable
 private fun AdicionarItemPreview() {
     SuperComprasTheme() {
-        AdicionarItem()
+        AdicionarItem(aoSalvarItem = {})
     }
 }
 
@@ -216,10 +284,8 @@ private fun TituloPreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SuperComprasTheme {
-        Greeting("Android")
-    }
-}
+//Classe para representar os itens da lista de compras
+data class ItemCompra(
+    val texto: String,
+    var foiComprado : Boolean = false
+)
