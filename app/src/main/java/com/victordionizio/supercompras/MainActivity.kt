@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import com.victordionizio.supercompras.ui.theme.Marinho
 import com.victordionizio.supercompras.ui.theme.SuperComprasTheme
 import com.victordionizio.supercompras.ui.theme.Typography
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,9 +71,9 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
         ) {
             ImagemTopo()
-            AdicionarItem(aoSalvarItem = { textoNovo -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
+            AdicionarItem(aoSalvarItem = { novoItem -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
                 listaDeItens =
-                    listaDeItens + ItemCompra(textoNovo) // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
+                    listaDeItens + novoItem // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
             })
             Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
             Titulo(texto = "Lista de Compras")
@@ -299,7 +301,7 @@ fun ItemDaLista(
         }
 
         Text(
-            text = "Segunda-geira, (25/05/2026) as 11:40",
+            text = item.dataHora,
             style = Typography.labelSmall,
             modifier = Modifier
                 .padding(top = 8.dp) // Adiciona um espaçamento entre o texto e o item da lista
@@ -309,7 +311,7 @@ fun ItemDaLista(
 }
 
 @Composable
-fun AdicionarItem(aoSalvarItem: (texto: String) -> Unit, modifier: Modifier = Modifier) {
+fun AdicionarItem(aoSalvarItem: (item: ItemCompra) -> Unit, modifier: Modifier = Modifier) {
     //mutableStateOf é uma função que cria um estado mutável, ou seja, um estado que pode ser alterado.
     // O valor inicial do estado é uma string vazia ("").
     // O texto digitado pelo usuário será armazenado nessa variável de estado,
@@ -323,10 +325,10 @@ fun AdicionarItem(aoSalvarItem: (texto: String) -> Unit, modifier: Modifier = Mo
     //rememberSaveable é uma função que combina a funcionalidade de remember com a capacidade de
     // salvar o estado em caso de mudanças de configuração, como rotações de tela.
 
-    var texto = rememberSaveable() { mutableStateOf("") }
+    var texto by rememberSaveable() { mutableStateOf("") }
     OutlinedTextField(
-        value = texto.value,
-        onValueChange = { texto.value = it },
+        value = texto,
+        onValueChange = { texto = it },
         placeholder = {
             Text(
                 text = "Digite o item que deseja adicionar",
@@ -345,8 +347,8 @@ fun AdicionarItem(aoSalvarItem: (texto: String) -> Unit, modifier: Modifier = Mo
     Button(
         shape = RoundedCornerShape(24.dp),
         onClick = {
-            aoSalvarItem(texto.value)
-            texto.value = "" // Limpa o campo de texto após salvar o item
+            aoSalvarItem(ItemCompra(texto, false, getDataHota()))
+            texto = "" // Limpa o campo de texto após salvar o item
         },
         modifier = modifier
     ) {
@@ -359,12 +361,11 @@ fun AdicionarItem(aoSalvarItem: (texto: String) -> Unit, modifier: Modifier = Mo
     }
 }
 
-// onClick: () -> Unit é a assinatura de um parâmetro de função em Kotlin.
-// Ele representa uma função que não recebe argumentos e não retorna nenhum valor
-// (Unit é o tipo de retorno para funções que não retornam nada).
-
-// onClick é um parâmetro do tipo função que não recebe argumentos e não retorna nenhum valor.
-// Ele é usado para definir a ação a ser executada quando o botão for clicado.
+fun getDataHota() : String {
+    val dataHoraAtual = System.currentTimeMillis()
+    val dataHoraFormata = SimpleDateFormat("EEEE (dd/MM/yyyy) 'às' HH:mm", Locale("pt", "BR"))
+    return dataHoraFormata.format(dataHoraAtual)
+}
 
 @Composable
 fun ImagemTopo(modifier: Modifier = Modifier) {
@@ -425,5 +426,6 @@ private fun TituloPreview() {
 //Classe para representar os itens da lista de compras
 data class ItemCompra(
     val texto: String,
-    var foiComprado: Boolean = false
+    var foiComprado: Boolean = false,
+    val dataHora : String
 )
