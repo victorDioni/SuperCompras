@@ -53,68 +53,158 @@ class MainActivity : ComponentActivity() {
             SuperComprasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ListaDeCompras(Modifier.padding(innerPadding))
+                }
             }
         }
     }
-}
 
 
-@Composable
-fun ListaDeCompras(modifier: Modifier = Modifier) {
-    var listaDeItens by rememberSaveable { mutableStateOf(listOf<ItemCompra>()) }
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally, // Alinha os itens horizontalmente ao centro
-        modifier = modifier
-    ) {
-        ImagemTopo()
-        AdicionarItem(aoSalvarItem = { textoNovo -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
-            listaDeItens = listaDeItens + ItemCompra(textoNovo) // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
-        })
-        Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
-        Titulo(texto = "Lista de Compras")
-        Column {
-            listaDeItens.forEach { item ->
-                ItemDaLista(
-                    item = item,
-                    aoMudarStatus = {
+    @Composable
+    fun ListaDeCompras(modifier: Modifier = Modifier) {
+        var listaDeItens by rememberSaveable { mutableStateOf(listOf<ItemCompra>()) }
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally, // Alinha os itens horizontalmente ao centro
+            modifier = modifier
+        ) {
+            ImagemTopo()
+            AdicionarItem(aoSalvarItem = { textoNovo -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
+                listaDeItens =
+                    listaDeItens + ItemCompra(textoNovo) // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
+            })
+            Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
+            Titulo(texto = "Lista de Compras")
+
+            ListaDeItens(
+                lista = listaDeItens,
+                aoMudarStatus = { itemSelecionado ->
+                    /*
+                    1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
+                    2. Ação do Map: Ele percorre a lista.
+                    3. A Transformação:
+                        "Você é o ‘item’ que eu cliquei?"
+                        Se SIM: Eu te transformo numa versão "marcada como comprado".
+                        Se NÃO: Eu te mantenho exatamente como você era.
+                    4. Saída: Uma nova lista onde todos os itens continuam lá, mas aquele que você clicou está transformado.
+                    * */
+                    // 1. Criamos uma NOVA lista baseada na antiga usando o.map
+                    listaDeItens = listaDeItens.map { itemMap ->
+
+                        // 2. Verificamos se o ‘item’ que estamos a percorrer agora no map
+                        // é exatamente o ‘item’ que o usuário clicou
+                        if (itemSelecionado == itemMap) {
+
+                            // 3. Se for o item clicado, usamos o .copy() para criar um NOVO objeto.
+                            // Ele cria um novo item identico, mudando APENAS o que você colocar no parênteses
+                            // Se era true, vira false. Se era false, vira true (!).
+
+                            itemSelecionado.copy(foiComprado = !itemSelecionado.foiComprado)
+
+                        } else {
+                            // 4. Se não for o item clicado, retornamos ele sem nenhuma alteração
+                            itemMap
+                        }
+                    }
+                },
+                aoRemoverItem = { itemRemovido ->
+                    listaDeItens = listaDeItens - itemRemovido
+
+                },
+                aoEditarItem = { itemEditado ->
+                    listaDeItens = listaDeItens.map { itemAtual ->
+                        if (itemAtual == itemEditado) {
+                            itemAtual.copy(texto = itemEditado.texto)
+                        } else {
+                            itemAtual
+                        }
+                    }
+                }
+            )
+
+            Titulo(texto = "Comprados")
+
+            // Verifica se há algum item marcado como comprado usando o
+            // métodoo any, que retorna true se pelo menos um item na lista atender à condição especificada (foiComprado == true).
+            // o métod any percorre a lista de itens e verifica se algum deles tem a propriedade foiComprado marcada como true.
+            //  Se encontrar pelo menos um item comprado, ele retorna true, caso contrário, retorna false.
+            if (listaDeItens.any { it.foiComprado }) {
+                ListaDeItens( // listaDeItens.filter { it.foiComprado } é usado para criar uma nova lista que contém apenas os itens que foram marcados como comprados (foiComprado == true).
+                    lista = listaDeItens.filter { it.foiComprado },
+                    aoMudarStatus = { itemSelecionado ->
                         /*
-                        1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
-                        2. Ação do Map: Ele percorre a lista.
-                        3. A Transformação:
-                            "Você é o ‘item’ que eu cliquei?"
-                            Se SIM: Eu te transformo numa versão "marcada como comprado".
-                            Se NÃO: Eu te mantenho exatamente como você era.
-                        4. Saída: Uma nova lista onde todos os itens continuam lá, mas aquele que você clicou está transformado.
-                        * */
+                    1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
+                    2. Ação do Map: Ele percorre a lista.
+                    3. A Transformação:
+                        "Você é o ‘item’ que eu cliquei?"
+                        Se SIM: Eu te transformo numa versão "marcada como comprado".
+                        Se NÃO: Eu te mantenho exatamente como você era.
+                    4. Saída: Uma nova lista onde todos os itens continuam lá, mas aquele que você clicou está transformado.
+                    * */
                         // 1. Criamos uma NOVA lista baseada na antiga usando o.map
-                        listaDeItens = listaDeItens.map { itemDaLista ->
+                        listaDeItens = listaDeItens.map { itemMap ->
 
                             // 2. Verificamos se o ‘item’ que estamos a percorrer agora no map
                             // é exatamente o ‘item’ que o usuário clicou
-                            if (itemDaLista == item) {
+                            if (itemSelecionado == itemMap) {
 
                                 // 3. Se for o item clicado, usamos o .copy() para criar um NOVO objeto.
                                 // Ele cria um novo item identico, mudando APENAS o que você colocar no parênteses
                                 // Se era true, vira false. Se era false, vira true (!).
 
-                                itemDaLista.copy(foiComprado = !itemDaLista.foiComprado)
+                                itemSelecionado.copy(foiComprado = !itemSelecionado.foiComprado)
 
                             } else {
                                 // 4. Se não for o item clicado, retornamos ele sem nenhuma alteração
-                                itemDaLista
+                                itemMap
                             }
                         }
                     },
-                    aoRemoverItem = {},
-                    aoEditarItem = {}
+                    aoRemoverItem = { itemRemovido ->
+                        listaDeItens = listaDeItens - itemRemovido
+
+                    },
+                    aoEditarItem = { itemEditado ->
+                        listaDeItens = listaDeItens.map { itemAtual ->
+                            if (itemAtual == itemEditado) {
+                                itemAtual.copy(texto = itemEditado.texto)
+                            } else {
+                                itemAtual
+                            }
+                        }
+                    }
+                )
+            } else {
+                Text(
+                    text = "Nenhum item comprado ainda.",
+                    style = Typography.bodyMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
-        }
-        Titulo(texto = "Comprados")
 
+
+        }
     }
 }
+
+@Composable
+fun ListaDeItens(
+    lista: List<ItemCompra>,
+    aoMudarStatus: (item: ItemCompra) -> Unit = {},
+    aoRemoverItem: (item: ItemCompra) -> Unit = {},
+    aoEditarItem: (item: ItemCompra) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        lista.forEach { item ->
+            ItemDaLista(
+                item = item,
+                aoMudarStatus = aoMudarStatus,
+                aoRemoverItem = aoRemoverItem,
+                aoEditarItem = aoEditarItem
+            )
+        }
+    }
 }
 
 @Composable
@@ -129,9 +219,9 @@ fun Titulo(texto: String, modifier: Modifier = Modifier) {
 @Composable
 fun ItemDaLista(
     item: ItemCompra,
-    aoMudarStatus : (item : ItemCompra) -> Unit = {},
-    aoRemoverItem : (item : ItemCompra) -> Unit = {},
-    aoEditarItem : (item : ItemCompra) -> Unit = {},
+    aoMudarStatus: (item: ItemCompra) -> Unit = {},
+    aoRemoverItem: (item: ItemCompra) -> Unit = {},
+    aoEditarItem: (item: ItemCompra) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(verticalArrangement = Arrangement.Top, modifier = modifier) {
@@ -189,7 +279,7 @@ fun ItemDaLista(
 }
 
 @Composable
-fun AdicionarItem(aoSalvarItem: (texto : String) -> Unit, modifier: Modifier = Modifier) {
+fun AdicionarItem(aoSalvarItem: (texto: String) -> Unit, modifier: Modifier = Modifier) {
     //mutableStateOf é uma função que cria um estado mutável, ou seja, um estado que pode ser alterado.
     // O valor inicial do estado é uma string vazia ("").
     // O texto digitado pelo usuário será armazenado nessa variável de estado,
@@ -266,8 +356,6 @@ fun Icone(icone: ImageVector, modifier: Modifier = Modifier) {
 }
 
 
-
-
 @Preview
 @Composable
 private fun AdicionarItemPreview() {
@@ -307,5 +395,5 @@ private fun TituloPreview() {
 //Classe para representar os itens da lista de compras
 data class ItemCompra(
     val texto: String,
-    var foiComprado : Boolean = false
+    var foiComprado: Boolean = false
 )
