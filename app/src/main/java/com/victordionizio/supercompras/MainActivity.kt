@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
             Titulo(texto = "Lista de Compras")
 
             ListaDeItens(
-                lista = listaDeItens,
+                lista = listaDeItens.filter { !it.foiComprado },
                 aoMudarStatus = { itemSelecionado ->
                     /*
                     1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
@@ -230,7 +230,7 @@ fun ItemDaLista(
             horizontalArrangement = Arrangement.Start
         ) {
             Checkbox(
-                checked = false,
+                checked = item.foiComprado,
                 onCheckedChange = { // Ação a ser executada quando o estado do checkbox for alterado
                     aoMudarStatus(item)
                 },
