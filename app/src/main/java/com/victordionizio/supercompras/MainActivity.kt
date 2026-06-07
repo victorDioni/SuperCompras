@@ -68,8 +68,8 @@ fun ListaDeCompras(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         ImagemTopo()
-        AdicionarItem(aoSalvarItem = { textoNovo ->
-            listaDeItens = listaDeItens + ItemCompra(textoNovo)
+        AdicionarItem(aoSalvarItem = { textoNovo -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
+            listaDeItens = listaDeItens + ItemCompra(textoNovo) // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
         })
         Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
         Titulo(texto = "Lista de Compras")
@@ -78,10 +78,30 @@ fun ListaDeCompras(modifier: Modifier = Modifier) {
                 ItemDaLista(
                     item = item,
                     aoMudarStatus = {
+                        /*
+                        1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
+                        2. Ação do Map: Ele percorre a lista.
+                        3. A Transformação:
+                            "Você é o ‘item’ que eu cliquei?"
+                            Se SIM: Eu te transformo numa versão "marcada como comprado".
+                            Se NÃO: Eu te mantenho exatamente como você era.
+                        4. Saída: Uma nova lista onde todos os itens continuam lá, mas aquele que você clicou está transformado.
+                        * */
+                        // 1. Criamos uma NOVA lista baseada na antiga usando o.map
                         listaDeItens = listaDeItens.map { itemDaLista ->
+
+                            // 2. Verificamos se o ‘item’ que estamos a percorrer agora no map
+                            // é exatamente o ‘item’ que o usuário clicou
                             if (itemDaLista == item) {
+
+                                // 3. Se for o item clicado, usamos o .copy() para criar um NOVO objeto.
+                                // Ele cria um novo item identico, mudando APENAS o que você colocar no parênteses
+                                // Se era true, vira false. Se era false, vira true (!).
+
                                 itemDaLista.copy(foiComprado = !itemDaLista.foiComprado)
+
                             } else {
+                                // 4. Se não for o item clicado, retornamos ele sem nenhuma alteração
                                 itemDaLista
                             }
                         }
