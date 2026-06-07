@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -110,10 +111,10 @@ class MainActivity : ComponentActivity() {
                     listaDeItens = listaDeItens - itemRemovido
 
                 },
-                aoEditarItem = { itemEditado ->
+                aoEditarItem = { itemEditado, novoTexto ->
                     listaDeItens = listaDeItens.map { itemAtual ->
                         if (itemAtual == itemEditado) {
-                            itemAtual.copy(texto = itemEditado.texto)
+                            itemAtual.copy(texto = novoTexto)
                         } else {
                             itemAtual
                         }
@@ -163,10 +164,10 @@ class MainActivity : ComponentActivity() {
                         listaDeItens = listaDeItens - itemRemovido
 
                     },
-                    aoEditarItem = { itemEditado ->
+                    aoEditarItem = { itemEditado, novoTexto ->
                         listaDeItens = listaDeItens.map { itemAtual ->
                             if (itemAtual == itemEditado) {
-                                itemAtual.copy(texto = itemEditado.texto)
+                                itemAtual.copy(texto = novoTexto)
                             } else {
                                 itemAtual
                             }
@@ -192,7 +193,7 @@ fun ListaDeItens(
     lista: List<ItemCompra>,
     aoMudarStatus: (item: ItemCompra) -> Unit = {},
     aoRemoverItem: (item: ItemCompra) -> Unit = {},
-    aoEditarItem: (item: ItemCompra) -> Unit = {},
+    aoEditarItem: (item: ItemCompra, novoTexto: String) -> Unit = {_, _ ->},
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -221,7 +222,7 @@ fun ItemDaLista(
     item: ItemCompra,
     aoMudarStatus: (item: ItemCompra) -> Unit = {},
     aoRemoverItem: (item: ItemCompra) -> Unit = {},
-    aoEditarItem: (item: ItemCompra) -> Unit = {},
+    aoEditarItem: (item: ItemCompra, novoTexto: String) -> Unit = {_, _ ->}, // _ recebe dois argumentos implicitos, o item a ser editado e o novo texto, mas como não estamos usando eles dentro da função lambda, podemos usar _ para indicar que esses argumentos não serão utilizados.
     modifier: Modifier = Modifier
 ) {
     Column(verticalArrangement = Arrangement.Top, modifier = modifier) {
@@ -229,6 +230,9 @@ fun ItemDaLista(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
+            var textoEditado by rememberSaveable() { mutableStateOf(item.texto) }
+            var edicao by rememberSaveable() { mutableStateOf(false) }
+
             Checkbox(
                 checked = item.foiComprado,
                 onCheckedChange = { // Ação a ser executada quando o estado do checkbox for alterado
@@ -240,13 +244,37 @@ fun ItemDaLista(
 
 
             )
-            Text(
-                text = item.texto,
-                style = Typography.bodyMedium,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .weight(1f) // Faz com que o texto ocupe o máximo de espaço disponível
-            )
+
+            if (edicao){
+                OutlinedTextField(
+                    value = textoEditado,
+                    onValueChange = {textoEditado = it},
+                    singleLine = true,
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick = {
+                        aoEditarItem(item, textoEditado)
+                        edicao = false
+                              },
+                ) {
+                    Icone(
+                        icone = Icons.Default.Done,
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                }
+            } else {
+                Text(
+                    text = item.texto,
+                    style = Typography.bodyMedium,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .weight(1f) // Faz com que o texto ocupe o máximo de espaço disponível
+                )
+            }
+
             IconButton(
                 onClick = { aoRemoverItem(item) },
                 modifier = Modifier.padding(horizontal = 8.dp) // Adiciona um espaçamento entre os ícones
@@ -258,7 +286,9 @@ fun ItemDaLista(
                 )
             }
             IconButton(
-                onClick = { aoEditarItem(item) },
+                onClick = {
+                    edicao = true
+                          },
             ) {
                 Icone(
                     icone = Icons.Default.Edit,
