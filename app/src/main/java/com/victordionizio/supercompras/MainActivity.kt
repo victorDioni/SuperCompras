@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -65,18 +68,20 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ListaDeCompras(modifier: Modifier = Modifier) {
         var listaDeItens by rememberSaveable { mutableStateOf(listOf<ItemCompra>()) }
-        Column(
+        LazyColumn( // LazyColumn é um componente de layout que exibe uma lista rolável de itens, onde os itens são carregados de forma preguiçosa (lazy loading) à medida que o usuário rola a lista.
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally, // Alinha os itens horizontalmente ao centro
             modifier = modifier
         ) {
-            ImagemTopo()
-            AdicionarItem(aoSalvarItem = { novoItem -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
-                listaDeItens =
-                    listaDeItens + novoItem // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
-            })
-            Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
-            Titulo(texto = "Lista de Compras")
+            item {
+                ImagemTopo()
+                AdicionarItem(aoSalvarItem = { novoItem -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
+                    listaDeItens =
+                        listaDeItens + novoItem // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
+                })
+                Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
+                Titulo(texto = "Lista de Compras")
+            }
 
             ListaDeItens(
                 lista = listaDeItens.filter { !it.foiComprado },
@@ -124,7 +129,9 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
-            Titulo(texto = "Comprados")
+            item {
+                Titulo(texto = "Comprados")
+            }
 
             // Verifica se há algum item marcado como comprado usando o
             // métodoo any, que retorna true se pelo menos um item na lista atender à condição especificada (foiComprado == true).
@@ -176,38 +183,29 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 )
-            } else {
-                Text(
-                    text = "Nenhum item comprado ainda.",
-                    style = Typography.bodyMedium,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
-
-
         }
     }
 }
 
-@Composable
-fun ListaDeItens(
+
+fun LazyListScope.ListaDeItens(
+    // LazyListScope é o escopo usado para construir a lista usando o LazyColumn, permitindo que você defina os itens da lista de forma eficiente.
     lista: List<ItemCompra>,
     aoMudarStatus: (item: ItemCompra) -> Unit = {},
     aoRemoverItem: (item: ItemCompra) -> Unit = {},
-    aoEditarItem: (item: ItemCompra, novoTexto: String) -> Unit = {_, _ ->},
-    modifier: Modifier = Modifier
+    aoEditarItem: (item: ItemCompra, novoTexto: String) -> Unit = { _, _ -> },
 ) {
-    Column(modifier = modifier) {
-        lista.forEach { item ->
-            ItemDaLista(
-                item = item,
-                aoMudarStatus = aoMudarStatus,
-                aoRemoverItem = aoRemoverItem,
-                aoEditarItem = aoEditarItem
-            )
-        }
+    items(lista.size) { index ->
+        ItemDaLista(
+            item = lista[index],
+            aoMudarStatus = aoMudarStatus,
+            aoRemoverItem = aoRemoverItem,
+            aoEditarItem = aoEditarItem
+        )
+
     }
+
 }
 
 @Composable
@@ -224,7 +222,7 @@ fun ItemDaLista(
     item: ItemCompra,
     aoMudarStatus: (item: ItemCompra) -> Unit = {},
     aoRemoverItem: (item: ItemCompra) -> Unit = {},
-    aoEditarItem: (item: ItemCompra, novoTexto: String) -> Unit = {_, _ ->}, // _ recebe dois argumentos implicitos, o item a ser editado e o novo texto, mas como não estamos usando eles dentro da função lambda, podemos usar _ para indicar que esses argumentos não serão utilizados.
+    aoEditarItem: (item: ItemCompra, novoTexto: String) -> Unit = { _, _ -> }, // _ recebe dois argumentos implicitos, o item a ser editado e o novo texto, mas como não estamos usando eles dentro da função lambda, podemos usar _ para indicar que esses argumentos não serão utilizados.
     modifier: Modifier = Modifier
 ) {
     Column(verticalArrangement = Arrangement.Top, modifier = modifier) {
@@ -247,10 +245,10 @@ fun ItemDaLista(
 
             )
 
-            if (edicao){
+            if (edicao) {
                 OutlinedTextField(
                     value = textoEditado,
-                    onValueChange = {textoEditado = it},
+                    onValueChange = { textoEditado = it },
                     singleLine = true,
                     shape = RoundedCornerShape(24.dp),
                     modifier = Modifier.weight(1f)
@@ -259,7 +257,7 @@ fun ItemDaLista(
                     onClick = {
                         aoEditarItem(item, textoEditado)
                         edicao = false
-                              },
+                    },
                 ) {
                     Icone(
                         icone = Icons.Default.Done,
@@ -290,7 +288,7 @@ fun ItemDaLista(
             IconButton(
                 onClick = {
                     edicao = true
-                          },
+                },
             ) {
                 Icone(
                     icone = Icons.Default.Edit,
@@ -361,7 +359,7 @@ fun AdicionarItem(aoSalvarItem: (item: ItemCompra) -> Unit, modifier: Modifier =
     }
 }
 
-fun getDataHota() : String {
+fun getDataHota(): String {
     val dataHoraAtual = System.currentTimeMillis()
     val dataHoraFormata = SimpleDateFormat("EEEE (dd/MM/yyyy) 'às' HH:mm", Locale("pt", "BR"))
     return dataHoraFormata.format(dataHoraAtual)
@@ -427,5 +425,5 @@ private fun TituloPreview() {
 data class ItemCompra(
     val texto: String,
     var foiComprado: Boolean = false,
-    val dataHora : String
+    val dataHora: String
 )
