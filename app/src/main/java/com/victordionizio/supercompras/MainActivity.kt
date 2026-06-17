@@ -95,6 +95,15 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(24.dp)) // Adiciona um espaçamento entre o título e a lista de itens
             }
 
+            if (listaDeItens.isEmpty()){
+                item {
+                    Text(
+                        text = "Sua lista está vazia. Adicione itens para começar a organizar suas compras!",
+                        style = Typography.bodyLarge,
+                    )
+                }
+            }
+
             ListaDeItens(
                 lista = listaDeItens.filter { !it.foiComprado },
                 aoMudarStatus = { itemSelecionado ->
@@ -109,17 +118,18 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
-            item {
-                Spacer(modifier = Modifier.height(40.dp)) // Adiciona um espaçamento entre a lista de itens e o título "Comprados"
-                Titulo(texto = "Comprados")
-                Spacer(modifier = Modifier.height(24.dp)) // Adiciona um espaçamento entre o título "Comprados" e a lista de itens comprados
-            }
-
             // Verifica se há algum item marcado como comprado usando o
             // métodoo any, que retorna true se pelo menos um item na lista atender à condição especificada (foiComprado == true).
             // o métod any percorre a lista de itens e verifica se algum deles tem a propriedade foiComprado marcada como true.
             //  Se encontrar pelo menos um item comprado, ele retorna true, caso contrário, retorna false.
             if (listaDeItens.any { it.foiComprado }) {
+
+                item {
+                    Spacer(modifier = Modifier.height(40.dp)) // Adiciona um espaçamento entre a lista de itens e o título "Comprados"
+                    Titulo(texto = "Comprados")
+                    Spacer(modifier = Modifier.height(24.dp)) // Adiciona um espaçamento entre o título "Comprados" e a lista de itens comprados
+                }
+
                 ListaDeItens( // listaDeItens.filter { it.foiComprado } é usado para criar uma nova lista que contém apenas os itens que foram marcados como comprados (foiComprado == true).
                     lista = listaDeItens.filter { it.foiComprado },
                     aoMudarStatus = { itemSelecionado ->
@@ -163,7 +173,8 @@ fun Titulo(texto: String, modifier: Modifier = Modifier) {
     Text(
         text = texto,
         style = Typography.headlineLarge,
-        modifier = modifier.padding(bottom = 8.dp) // Adiciona um espaçamento entre o título e a linha pontilhada
+        textAlign = TextAlign.Center,
+        modifier = modifier.padding(bottom = 8.dp).fillMaxWidth() // Adiciona um espaçamento entre o título e a linha pontilhada
     )
     LinhaPontilhada(modifier = modifier)
 }
