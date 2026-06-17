@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,15 +42,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.victordionizio.supercompras.ui.theme.Coral
 import com.victordionizio.supercompras.ui.theme.Marinho
 import com.victordionizio.supercompras.ui.theme.SuperComprasTheme
 import com.victordionizio.supercompras.ui.theme.Typography
+import java.nio.file.Files.size
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -77,7 +83,7 @@ class MainActivity : ComponentActivity() {
         LazyColumn( // LazyColumn é um componente de layout que exibe uma lista rolável de itens, onde os itens são carregados de forma preguiçosa (lazy loading) à medida que o usuário rola a lista.
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally, // Alinha os itens horizontalmente ao centro
-            modifier = modifier
+            modifier = modifier.padding(horizontal = 16.dp) // Adiciona um espaçamento horizontal de 16dp em toda a LazyColumn
         ) {
             item {
                 ImagemTopo()
@@ -86,6 +92,7 @@ class MainActivity : ComponentActivity() {
                 })
                 Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
                 Titulo(texto = "Lista de Compras")
+                Spacer(modifier = Modifier.height(24.dp)) // Adiciona um espaçamento entre o título e a lista de itens
             }
 
             ListaDeItens(
@@ -103,7 +110,9 @@ class MainActivity : ComponentActivity() {
             )
 
             item {
+                Spacer(modifier = Modifier.height(40.dp)) // Adiciona um espaçamento entre a lista de itens e o título "Comprados"
                 Titulo(texto = "Comprados")
+                Spacer(modifier = Modifier.height(24.dp)) // Adiciona um espaçamento entre o título "Comprados" e a lista de itens comprados
             }
 
             // Verifica se há algum item marcado como comprado usando o
@@ -154,8 +163,23 @@ fun Titulo(texto: String, modifier: Modifier = Modifier) {
     Text(
         text = texto,
         style = Typography.headlineLarge,
-        modifier = modifier
+        modifier = modifier.padding(bottom = 8.dp) // Adiciona um espaçamento entre o título e a linha pontilhada
     )
+    LinhaPontilhada(modifier = modifier)
+}
+
+@Composable
+fun LinhaPontilhada(modifier: Modifier = Modifier) {
+    val pathEfect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 2.5f) // Define um efeito de linha pontilhada, onde o primeiro valor (10f) representa o comprimento do traço e o segundo valor (10f) representa o comprimento do espaço entre os traços. O terceiro valor (0f) é a fase inicial da linha pontilhada.
+    Canvas(modifier = modifier.fillMaxWidth()){
+        drawline(
+            color = Coral,
+            pathEfect = pathEfect,
+            start = Offset(0, 0),
+            end = Offset(size.width, 0),
+            strokeWidth = 4f
+        )
+    }
 }
 
 @Composable
@@ -218,23 +242,22 @@ fun ItemDaLista(
 
             IconButton(
                 onClick = { aoRemoverItem(item) },
-                modifier = Modifier.padding(horizontal = 8.dp) // Adiciona um espaçamento entre os ícones
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .size(16.dp)
             ) {
                 Icone(
-                    icone = Icons.Default.Delete,
-                    modifier = Modifier
-                        .size(16.dp) // Define o tamanho do ícone
+                    icone = Icons.Default.Delete
                 )
             }
             IconButton(
                 onClick = {
                     edicao = true
                 },
+                modifier = Modifier.size(16.dp)
             ) {
                 Icone(
-                    icone = Icons.Default.Edit,
-                    modifier = Modifier
-                        .size(16.dp)
+                    icone = Icons.Default.Edit
                 )
             }
         }
@@ -289,13 +312,13 @@ fun AdicionarItem(aoSalvarItem: (item: ItemCompra) -> Unit, modifier: Modifier =
             aoSalvarItem(ItemCompra(texto, false, getDataHota()))
             texto = "" // Limpa o campo de texto após salvar o item
         },
-        modifier = modifier
+        modifier = modifier,
+        contentPadding = PaddingValues(16.dp, 12.dp) // Define o espaçamento interno do botão (horizontal, vertical)
     ) {
         Text(
             text = "Salvar item",
             color = Color.White,
-            style = Typography.bodyLarge,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            style = Typography.bodyLarge
         )
     }
 }
