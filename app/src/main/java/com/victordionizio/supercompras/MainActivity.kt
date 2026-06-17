@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +55,7 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-    val viewModel : SuperComprasViewModel by viewModels() // viewModels() é uma função de extensão que fornece uma instância da ViewModel associada à atividade. Ela é usada para obter a instância da ViewModel, permitindo que a atividade acesse os dados e a lógica de negócios contidos na ViewModel.
+    val viewModel: SuperComprasViewModel by viewModels() // viewModels() é uma função de extensão que fornece uma instância da ViewModel associada à atividade. Ela é usada para obter a instância da ViewModel, permitindo que a atividade acesse os dados e a lógica de negócios contidos na ViewModel.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +72,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ListaDeCompras(modifier: Modifier = Modifier, viewModel: SuperComprasViewModel) {
-        var listaDeItens by rememberSaveable { mutableStateOf(listOf<ItemCompra>()) }
+        val listaDeItens by viewModel.listaDeItens.collectAsState() // collectAsState() é uma função de extensão que coleta os valores emitidos por um StateFlow e os converte em um estado Compose. Ele permite que a interface do usuário reaja às mudanças na lista de itens, atualizando automaticamente a exibição quando a lista for modificada.
+
         LazyColumn( // LazyColumn é um componente de layout que exibe uma lista rolável de itens, onde os itens são carregados de forma preguiçosa (lazy loading) à medida que o usuário rola a lista.
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally, // Alinha os itens horizontalmente ao centro
@@ -80,8 +82,7 @@ class MainActivity : ComponentActivity() {
             item {
                 ImagemTopo()
                 AdicionarItem(aoSalvarItem = { novoItem -> // Ação a ser executada quando o usuário clicar no botão "Salvar item" e passar o texto digitado como argumento
-                    listaDeItens =
-                        listaDeItens + novoItem // Cria um novo item de compra com o texto digitado e adiciona à lista de itens usando o operador +, que cria uma nova lista com o novo item adicionado.
+                    viewModel.adicionarItem(novoItem)
                 })
                 Spacer(modifier = Modifier.height(48.dp)) // Adiciona um espaçamento entre o botão e o título
                 Titulo(texto = "Lista de Compras")
@@ -113,33 +114,7 @@ class MainActivity : ComponentActivity() {
                 ListaDeItens( // listaDeItens.filter { it.foiComprado } é usado para criar uma nova lista que contém apenas os itens que foram marcados como comprados (foiComprado == true).
                     lista = listaDeItens.filter { it.foiComprado },
                     aoMudarStatus = { itemSelecionado ->
-                        /*
-                    1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
-                    2. Ação do Map: Ele percorre a lista.
-                    3. A Transformação:
-                        "Você é o ‘item’ que eu cliquei?"
-                        Se SIM: Eu te transformo numa versão "marcada como comprado".
-                        Se NÃO: Eu te mantenho exatamente como você era.
-                    4. Saída: Uma nova lista onde todos os itens continuam lá, mas aquele que você clicou está transformado.
-                    * */
-                        // 1. Criamos uma NOVA lista baseada na antiga usando o.map
-                        listaDeItens = listaDeItens.map { itemMap ->
-
-                            // 2. Verificamos se o ‘item’ que estamos a percorrer agora no map
-                            // é exatamente o ‘item’ que o usuário clicou
-                            if (itemSelecionado == itemMap) {
-
-                                // 3. Se for o item clicado, usamos o .copy() para criar um NOVO objeto.
-                                // Ele cria um novo item identico, mudando APENAS o que você colocar no parênteses
-                                // Se era true, vira false. Se era false, vira true (!).
-
-                                itemSelecionado.copy(foiComprado = !itemSelecionado.foiComprado)
-
-                            } else {
-                                // 4. Se não for o item clicado, retornamos ele sem nenhuma alteração
-                                itemMap
-                            }
-                        }
+                        viewModel.mudarStatus(itemSelecionado)
                     },
                     aoRemoverItem = { itemRemovido ->
                         viewModel.removerItem(itemRemovido)
