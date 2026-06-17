@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
+
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,18 +33,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -55,7 +53,6 @@ import com.victordionizio.supercompras.ui.theme.Coral
 import com.victordionizio.supercompras.ui.theme.Marinho
 import com.victordionizio.supercompras.ui.theme.SuperComprasTheme
 import com.victordionizio.supercompras.ui.theme.Typography
-import java.nio.file.Files.size
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -183,11 +180,11 @@ fun Titulo(texto: String, modifier: Modifier = Modifier) {
 fun LinhaPontilhada(modifier: Modifier = Modifier) {
     val pathEfect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 2.5f) // Define um efeito de linha pontilhada, onde o primeiro valor (10f) representa o comprimento do traço e o segundo valor (10f) representa o comprimento do espaço entre os traços. O terceiro valor (0f) é a fase inicial da linha pontilhada.
     Canvas(modifier = modifier.fillMaxWidth()){
-        drawline(
+        drawLine(
             color = Coral,
-            pathEfect = pathEfect,
-            start = Offset(0, 0),
-            end = Offset(size.width, 0),
+            pathEffect = pathEfect,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
             strokeWidth = 4f
         )
     }
