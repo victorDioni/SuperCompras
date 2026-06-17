@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,13 +53,16 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+
+    val viewModel : SuperComprasViewModel by viewModels() // viewModels() é uma função de extensão que fornece uma instância da ViewModel associada à atividade. Ela é usada para obter a instância da ViewModel, permitindo que a atividade acesse os dados e a lógica de negócios contidos na ViewModel.
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SuperComprasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ListaDeCompras(Modifier.padding(innerPadding))
+                    ListaDeCompras(Modifier.padding(innerPadding), viewModel)
                 }
             }
         }
@@ -66,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun ListaDeCompras(modifier: Modifier = Modifier) {
+    fun ListaDeCompras(modifier: Modifier = Modifier, viewModel: SuperComprasViewModel) {
         var listaDeItens by rememberSaveable { mutableStateOf(listOf<ItemCompra>()) }
         LazyColumn( // LazyColumn é um componente de layout que exibe uma lista rolável de itens, onde os itens são carregados de forma preguiçosa (lazy loading) à medida que o usuário rola a lista.
             verticalArrangement = Arrangement.Top,
@@ -86,46 +90,14 @@ class MainActivity : ComponentActivity() {
             ListaDeItens(
                 lista = listaDeItens.filter { !it.foiComprado },
                 aoMudarStatus = { itemSelecionado ->
-                    /*
-                    1. Entrada: Lista de itens (ex: Arroz, Feijão, Batata).
-                    2. Ação do Map: Ele percorre a lista.
-                    3. A Transformação:
-                        "Você é o ‘item’ que eu cliquei?"
-                        Se SIM: Eu te transformo numa versão "marcada como comprado".
-                        Se NÃO: Eu te mantenho exatamente como você era.
-                    4. Saída: Uma nova lista onde todos os itens continuam lá, mas aquele que você clicou está transformado.
-                    * */
-                    // 1. Criamos uma NOVA lista baseada na antiga usando o.map
-                    listaDeItens = listaDeItens.map { itemMap ->
-
-                        // 2. Verificamos se o ‘item’ que estamos a percorrer agora no map
-                        // é exatamente o ‘item’ que o usuário clicou
-                        if (itemSelecionado == itemMap) {
-
-                            // 3. Se for o item clicado, usamos o .copy() para criar um NOVO objeto.
-                            // Ele cria um novo item identico, mudando APENAS o que você colocar no parênteses
-                            // Se era true, vira false. Se era false, vira true (!).
-
-                            itemSelecionado.copy(foiComprado = !itemSelecionado.foiComprado)
-
-                        } else {
-                            // 4. Se não for o item clicado, retornamos ele sem nenhuma alteração
-                            itemMap
-                        }
-                    }
+                    viewModel.mudarStatus(itemSelecionado)
                 },
                 aoRemoverItem = { itemRemovido ->
-                    listaDeItens = listaDeItens - itemRemovido
+                    viewModel.removerItem(itemRemovido)
 
                 },
                 aoEditarItem = { itemEditado, novoTexto ->
-                    listaDeItens = listaDeItens.map { itemAtual ->
-                        if (itemAtual == itemEditado) {
-                            itemAtual.copy(texto = novoTexto)
-                        } else {
-                            itemAtual
-                        }
-                    }
+                    viewModel.editarItem(itemEditado, novoTexto)
                 }
             )
 
@@ -170,17 +142,11 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     aoRemoverItem = { itemRemovido ->
-                        listaDeItens = listaDeItens - itemRemovido
+                        viewModel.removerItem(itemRemovido)
 
                     },
                     aoEditarItem = { itemEditado, novoTexto ->
-                        listaDeItens = listaDeItens.map { itemAtual ->
-                            if (itemAtual == itemEditado) {
-                                itemAtual.copy(texto = novoTexto)
-                            } else {
-                                itemAtual
-                            }
-                        }
+                        viewModel.editarItem(itemEditado, novoTexto)
                     }
                 )
             }
